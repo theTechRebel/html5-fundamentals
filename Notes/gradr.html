@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Mini App</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 1em;
+        background:white;
+      }
+      
+      [data-cart-info],
+      [data-credit-card]{
+        transform:scale(0.78);
+        margin-left:-3.4em;
+      }
+      div[data-cart-info] span {
+        display:inline-block;
+        vertical-align:middle;
+      }
+      .material-icons {
+        font-size:150px;
+      }
+      [data-cc-info] input:focus,
+      [data-cc-digits] input:focus{
+        outline:none;
+      }
+      div[data-cc-info]{
+        margin-top:1em;
+      }
+      
+      div[data-cc-info] input {
+        color:white;
+        font-size:1.2em;
+        border:none;
+        background:none;
+      }
+      div[data-cc-info] input:nth-child(2) {
+        padding-right: 10px;
+        float: right;
+      }
+      div[data-cc-digits]{
+        margin-top:2em;
+      }
+      div[data-cc-digits] input {
+        color:white;
+        font-size:2em;
+        line-height:2em;
+        border:none;
+        background:none;
+        margin-right:0.5em;
+      }
+      .mdc-card__primary-action,
+      .mdc-card__primary-action:hover {
+        cursor:auto;
+        padding:20px;
+        min-height:inherit;
+      }
+      div[data-credit-card]{
+        width:435px;
+        min-height:240px;
+        border-radius:10px;
+        background-color:#5d6874;
+      }
+      img[data-card-type]{
+        display:block;
+        width:120px;
+        height:60px;
+      }
+      [data-credit-card] [data-card-type]{
+        transition:width 1.5s;
+        margin-left:calc(100%-130px);
+      }
+      button[data-pay-btn] {
+        position:fixed;
+        bottom:20px;
+        width:90%;
+        border-width:1px;
+        border-style:solid;
+      }
+      [data-credit-card].is-visa{
+        background: linear-gradient(135deg, #622774 0%, #c53364 100%);
+      }
+      [data-credit-card].is-mastercard {
+        background: linear-gradient(135deg, #65799b 0%, #5e2563 100%);
+      }
+      
+      input.is-invalid,
+      .is-invalid input {
+        text-decoration: line-through;
+      }
+      
+      ::placeholder{
+        color:#fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div data-cart-info>
+      <h4 class="mdc-typography--headline4">
+        <span class="material-icons">shopping_cart</span>
+        <span data-bill></span>
+      </h4>
+    </div>
+    <div data-credit-card class="mdc-card mdc-card--outlined">
+      <div class="mdc-card__primary-action">
+        <img data-card-type src="http://placehold.it/120x60.png?text=Card" alt="Credit Card Type">
+        <div data-cc-digits>
+          <input type="text" size="4" placeholder="----"/>
+          <input type="text" size="4" placeholder="----"/>
+          <input type="text" size="4" placeholder="----"/>
+          <input type="text" size="4" placeholder="----"/>
+        </div>
+        <div data-cc-info>
+          <input type="text" size="20" placeholder="Name Surname">
+          <input type="text" size="6" placeholder="MM/YY">
+        </div>
+      </div>
+    </div>
+    <button class="mdc-button" data-pay-btn>Pay &amp; Checkout Now</button>
+
+    <script>
+      const supportedCards = {
+        visa, mastercard
+      };
+      
+      const countries = [
+        {
+          code: "US",
+          currency: "USD",
+          country: 'United States'
+        },
+        {
+          code: "NG",
+          currency: "NGN",
+          country: 'Nigeria'
+        },
+        {
+          code: 'KE',
+          currency: 'KES',
+          country: 'Kenya'
+        },
+        {
+          code: 'UG',
+          currency: 'UGX',
+          country: 'Uganda'
+        },
+        {
+          code: 'RW',
+          currency: 'RWF',
+          country: 'Rwanda'
+        },
+        {
+          code: 'TZ',
+          currency: 'TZS',
+          country: 'Tanzania'
+        },
+        {
+          code: 'ZA',
+          currency: 'ZAR',
+          country: 'South Africa'
+        },
+        {
+          code: 'CM',
+          currency: 'XAF',
+          country: 'Cameroon'
+        },
+        {
+          code: 'GH',
+          currency: 'GHS',
+          country: 'Ghana'
+        }
+      ];
+      
+      const appState = {};    
+      const fetchBill = () =>{
+        const api = "https://randomapi.com/api/006b08a801d82d0c9824dcfdfdfa3b3c";
+      
+      
+      fetch(api)
+        .then(response=>response.json())
+        .then(
+      		(data)=>{
+              displayCartTotal(data)
+            }).catch(err=>console.log(err))
+      };
+      
+      const formatAsMoney = (amount, buyerCountry)=>{
+        const country = buyerCountry.toLowerCase();
+        switch(country){
+          case 'united states':
+            return amount.toLocaleString(countries[0].code,{
+              style: 'currency',
+              currency: countries[0].currency
+            });
+            break;
+            
+          case 'nigeria':
+            return amount.toLocaleString(countries[1].code,{
+              style: 'currency',
+              currency: countries[1].currency
+            });
+            break;
+            
+          case 'kenya':
+            return amount.toLocaleString(countries[2].code,{
+              style: 'currency',
+              currency: countries[2].currency
+            })
+            break;
+            
+          case 'uganda':
+            return amount.toLocaleString(countries[3].code,{
+              style: 'currency',
+              currency: countries[3].currency
+            });
+            break;
+            
+          case 'rwanda':
+            return amount.toLocaleString(countries[4].code,{
+              style: 'currency',
+              currency: countries[4].currency
+            });
+            break;
+            
+          case 'tanzania':
+            return amount.toLocaleString(countries[5].code,{
+              style: 'currency',
+              currency: countries[5].currency
+            });
+            break;
+            
+          case 'south africa':
+            return amount.toLocaleString(countries[6].code,{
+              style: 'currency',
+              currency: countries[6].currency
+            });
+            break;
+          case 'cameroon':
+            return amount.toLocaleString(countries[7].code,{
+              style: 'currency',
+              currency: countries[7].currency
+            });
+            break;
+          case 'ghana':
+            return amount.toLocaleString(countries[8].code,{
+              style: 'currency',
+              currency: countries[8].currency
+            });
+            break;
+          default:
+            return amount.toLocaleString(countries[0].code, {
+              style: 'currency',
+              curreny: countries[0].currency
+            });
+            break;
+        }
+      };
+      
+      const flagIfInvalid =(field,isValid)=>{
+        if(isValid=true){
+          field.classList.remove("is-invalid");
+        }else{
+          field.classList.add("is-invalid");
+        }
+      };
+      const expiryDateFormatIsValid=(target)=>{
+        if(!target){return;}
+        console.log(target);
+        if(/^(0|1)[0-9]\/[0-9]{2}$/.test(target.value)){
+          return true;
+        }else{
+          return false;
+        }
+      };
+      
+      const validateCardExpiryDate = ({target})=>{
+        console.log(target);
+        let _target = expiryDateFormatIsValid(target);
+        if(_target){
+          let cardDate = target.value.split("/");
+          const month = cardDate[0];
+          const year = 20+cardDate[1];
+          const expiryDate = new Date(year+'-'+month);
+          if(expiryDate> new Date()){
+            flagIfInvalid(target, true);
+            return true;
+          }
+        }else{
+          return false;
+        }
+      };
+      const validateCardHolderName = ({target})=>{
+        console.log(target);
+        let _target = expiryDateFormatIsValid(target);
+        if(_target){
+          flagIfInvalid(target,isValid);
+          return true;
+        }else{
+          return false;
+        }
+      };  
+      
+      const uiCanInteract = () => {
+        const finput = document.querySelector("[data-cc-digits] input:nth-child(1)");
+        const finfo = document.querySelector("[data-cc-info] input:nth-child(1)");
+        const fdate = document.querySelector("[data-cc-info] input:nth-child(2)");
+        
+        let button = document.querySelector("[data-pay-btn]");
+        finput.addEventListener("blur",detectCardType);
+        finfo.addEventListener("blur",validateCardHolderName);
+  fdate.addEventListener("blur",validateCardExpiryDate);
+  button.addEventListener("click",validateCardNumber);
+  finput.focus();
+        
+      };
+
+      const detectCardType = ({target}) => {
+        console.log(target);
+        const targetValue = target.value;
+        const creditCard = document.querySelector("[data-credit-card]");
+        const cardType = document.querySelector("[data-card-type]");
+        if(targetValue.startsWith("4")){
+          creditCard.classList.remove("is-mastercard");
+          creditCard.classList.add("is-visa");
+          cardType.src = supportedCards.visa;
+          return "is-visa";
+        }else if(targetValue.startsWith("5")){
+          creditCard.classList.remove("is-visa");
+          creditCard.classList.add("is-mastercard");
+          cardType.src = supportedCards.mastercard;
+          return "is-mastercard";
+        }else{
+          creditCard.classList.remove("is-mastercard");
+          creditCard.classList.remove("is-visa");
+          cardType.src="https://placehold.it/120x60.png?text=Card";
+        }
+        return;
+      };
+      
+      const displayCartTotal = ({results})=>{
+        const [data] =results;
+        const {itemsInCart,buyerCountry} = data;
+        appState.items = itemsInCart;
+        appState.country = buyerCountry;
+        appState.bill = itemsInCart.reduce((total, item)=>{
+          return total + (item.price*item.qty);
+        },0);
+        
+        appState.billFormated = formatAsMoney(appState.bill, appState.country);
+        document.querySelector("[data-bill]").textContent = appState.billFormated;
+        uiCanInteract();
+      }
+      
+      const validateWithLuhn = (digits)=>{
+        let arr = (digits+'')
+        .split('')
+        .reverse()
+        .map(x=>parseInt(x));
+        let lastDigit = arr.splice(0,1)[0];
+        let sum = arr.reduce((acc,val,i)=>(i%2!==0?acc+val:acc+((val*2)%9)||9),0);
+        sum += lastDigit;
+        return sum % 10 ===0;
+      };
+      const validateCardNumber = ({target})=>{
+        const input = document.querySelectorAll("[data-cc-digits] input");
+        const foreach = Array.prototype.foreach;
+        const digitsString = input[0].value+input[1].value+input[2].value+input[3].value;
+        const digits = parseInt(digitsString);
+        console.log(validateWithLuhn(digits));
+      };
+      const startApp = () => {
+        fetchBill();
+      };
+
+      startApp();
+    </script>
+  </body>
+</html>
