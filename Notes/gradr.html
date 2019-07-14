@@ -365,12 +365,18 @@
         sum += lastDigit;
         return sum % 10 ===0;
       };
+      //test using 4485275742308327
       const validateCardNumber = ({target})=>{
         const input = document.querySelectorAll("[data-cc-digits] input");
         const foreach = Array.prototype.foreach;
         const digitsString = input[0].value+input[1].value+input[2].value+input[3].value;
         const digits = parseInt(digitsString);
-        console.log(validateWithLuhn(digits));
+        const div = document.querySelector("div[data-cc-digits]");
+        if(!validateWithLuhn(digits)){
+          div.classList.add("is-invalid");
+        }else{
+          div.classList.remove("is-invalid");
+        }
       };
       const startApp = () => {
         fetchBill();
