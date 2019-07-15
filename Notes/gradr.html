@@ -107,7 +107,7 @@
     </div>
     <div data-credit-card class="mdc-card mdc-card--outlined">
       <div class="mdc-card__primary-action">
-        <img data-card-type src="http://placehold.it/120x60.png?text=Card" alt="Credit Card Type">
+        <img data-card-type src="https://placehold.it/120x60.png?text=Card" alt="Credit Card Type">
         <div data-cc-digits>
           <input type="text" size="4" placeholder="----"/>
           <input type="text" size="4" placeholder="----"/>
@@ -269,7 +269,6 @@
       };
       const expiryDateFormatIsValid=(target)=>{
         if(!target){return;}
-        console.log(target);
         if(/^(0|1)[0-9]\/[0-9]{2}$/.test(target.value)){
           return true;
         }else{
@@ -278,7 +277,6 @@
       };
       
       const validateCardExpiryDate = ({target})=>{
-        console.log(target);
         let _target = expiryDateFormatIsValid(target);
         if(_target){
           let cardDate = target.value.split("/");
@@ -294,7 +292,6 @@
         }
       };
       const validateCardHolderName = ({target})=>{
-        console.log(target);
         let _target = expiryDateFormatIsValid(target);
         if(_target){
           flagIfInvalid(target,isValid);
@@ -308,18 +305,16 @@
         const finput = document.querySelector("[data-cc-digits] input:nth-child(1)");
         const finfo = document.querySelector("[data-cc-info] input:nth-child(1)");
         const fdate = document.querySelector("[data-cc-info] input:nth-child(2)");
+        const button = document.querySelector("[data-pay-btn]");
         
-        let button = document.querySelector("[data-pay-btn]");
         finput.addEventListener("blur",detectCardType);
         finfo.addEventListener("blur",validateCardHolderName);
-  fdate.addEventListener("blur",validateCardExpiryDate);
-  button.addEventListener("click",validateCardNumber);
-  finput.focus();
-        
+  		fdate.addEventListener("blur",validateCardExpiryDate);
+  		button.addEventListener("click",validateCardNumber);
+  		finput.focus();
       };
 
       const detectCardType = ({target}) => {
-        console.log(target);
         const targetValue = target.value;
         const creditCard = document.querySelector("[data-credit-card]");
         const cardType = document.querySelector("[data-card-type]");
@@ -346,14 +341,11 @@
         const {itemsInCart,buyerCountry} = data;
         appState.items = itemsInCart;
         appState.country = buyerCountry;
-        appState.bill = itemsInCart.reduce((total, item)=>{
-          return total + (item.price*item.qty);
-        },0);
-        
-        appState.billFormated = formatAsMoney(appState.bill, appState.country);
-        document.querySelector("[data-bill]").textContent = appState.billFormated;
+        appState.bill = itemsInCart.reduce((total, item) => total + (item.price * item.qty),0);
+        appState.billFormatted = formatAsMoney(appState.bill, appState.country);
+        document.querySelector("[data-bill]").textContent = appState.billFormatted;
         uiCanInteract();
-      }
+      };
       
       const validateWithLuhn = (digits)=>{
         let arr = (digits+'')
@@ -365,7 +357,6 @@
         sum += lastDigit;
         return sum % 10 ===0;
       };
-      //test using 4485275742308327
       const validateCardNumber = ({target})=>{
         const input = document.querySelectorAll("[data-cc-digits] input");
         const foreach = Array.prototype.foreach;
