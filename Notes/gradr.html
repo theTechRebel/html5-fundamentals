@@ -188,88 +188,33 @@
             }).catch(err=>console.log(err))
       };
       
-      const formatAsMoney = (amount, buyerCountry)=>{
-        const country = buyerCountry.toLowerCase();
-        switch(country){
-          case 'united states':
-            return amount.toLocaleString(countries[0].code,{
-              style: 'currency',
-              currency: countries[0].currency
-            });
-            break;
-            
-          case 'nigeria':
-            return amount.toLocaleString(countries[1].code,{
-              style: 'currency',
-              currency: countries[1].currency
-            });
-            break;
-            
-          case 'kenya':
-            return amount.toLocaleString(countries[2].code,{
-              style: 'currency',
-              currency: countries[2].currency
-            })
-            break;
-            
-          case 'uganda':
-            return amount.toLocaleString(countries[3].code,{
-              style: 'currency',
-              currency: countries[3].currency
-            });
-            break;
-            
-          case 'rwanda':
-            return amount.toLocaleString(countries[4].code,{
-              style: 'currency',
-              currency: countries[4].currency
-            });
-            break;
-            
-          case 'tanzania':
-            return amount.toLocaleString(countries[5].code,{
-              style: 'currency',
-              currency: countries[5].currency
-            });
-            break;
-            
-          case 'south africa':
-            return amount.toLocaleString(countries[6].code,{
-              style: 'currency',
-              currency: countries[6].currency
-            });
-            break;
-          case 'cameroon':
-            return amount.toLocaleString(countries[7].code,{
-              style: 'currency',
-              currency: countries[7].currency
-            });
-            break;
-          case 'ghana':
-            return amount.toLocaleString(countries[8].code,{
-              style: 'currency',
-              currency: countries[8].currency
-            });
-            break;
-          default:
-            return amount.toLocaleString(countries[0].code, {
-              style: 'currency',
-              curreny: countries[0].currency
-            });
-            break;
+      const formatAsMoney = (amount, buyerCountry) => {
+        const foundCountry = countries.find((country) => {
+          return country.country === buyerCountry;
+        });
+        
+        if (foundCountry) {
+          return amount.toLocaleString('en-' + foundCountry.code, {
+            style: 'currency',
+            currency: foundCountry.currency,
+          });
+        } else {
+          return amount.toLocaleString('en-' + countries[0].code, {
+            style: 'currency',
+            currency: countries[0].currency,
+          });
         }
       };
       
       const flagIfInvalid =(field,isValid)=>{
-        if(isValid=true){
+        if(isValid){
           field.classList.remove("is-invalid");
         }else{
           field.classList.add("is-invalid");
         }
       };
       const expiryDateFormatIsValid=(target)=>{
-        if(!target){return;}
-        if(/^(0|1)[0-9]\/[0-9]{2}$/.test(target.value)){
+        if(/^(0|1)[0-2]\/[0-9]{2}$/.test(target.value)){
           return true;
         }else{
           return false;
@@ -286,20 +231,39 @@
           if(expiryDate> new Date()){
             flagIfInvalid(target, true);
             return true;
+          }else{
+            flagIfInvalid(target, false);
+            return false;
           }
         }else{
+          flagIfInvalid(target, false);
           return false;
         }
       };
-      const validateCardHolderName = ({target})=>{
-        let _target = expiryDateFormatIsValid(target);
-        if(_target){
-          flagIfInvalid(target,isValid);
+    
+    const validateCardHolderName = ({target}) => {
+    const isValid = /^([a-zA-Z]{3,}) ([a-zA-Z]{3,})$/.test(target.value);
+    flagIfInvalid(target,isValid);
+    return isValid;
+	};
+      
+      const validateCardNumber = () => {
+        const digitsDiv = document.querySelector('div[data-cc-digits]');
+        const digitsInputList = document.querySelectorAll('div[data-cc-digits] input');
+        const digits = digitsInputList[0].value + digitsInputList[1].value +
+              		   digitsInputList[2].value + digitsInputList[3].value;
+        const digitsArray = Array.from(digits, (x) => Number.parseInt(x));
+        
+        if (validateWithLuhn(digitsArray)) {
+          flagIfInvalid(digitsDiv, true);
+          digitsDiv.classList.add("is-valid");
           return true;
-        }else{
+        } else {
+          flagIfInvalid(digitsDiv, false);
+          digitsDiv.classList.add("is-invalid");
           return false;
         }
-      };  
+      };
       
       const uiCanInteract = () => {
         const finput = document.querySelector("[data-cc-digits] input:nth-child(1)");
@@ -347,28 +311,33 @@
         uiCanInteract();
       };
       
-      const validateWithLuhn = (digits)=>{
-        let arr = (digits+'')
-        .split('')
-        .reverse()
-        .map(x=>parseInt(x));
-        let lastDigit = arr.splice(0,1)[0];
-        let sum = arr.reduce((acc,val,i)=>(i%2!==0?acc+val:acc+((val*2)%9)||9),0);
-        sum += lastDigit;
-        return sum % 10 ===0;
-      };
-      const validateCardNumber = ({target})=>{
-        const input = document.querySelectorAll("[data-cc-digits] input");
-        const foreach = Array.prototype.foreach;
-        const digitsString = input[0].value+input[1].value+input[2].value+input[3].value;
-        const digits = parseInt(digitsString);
-        const div = document.querySelector("div[data-cc-digits]");
-        if(!validateWithLuhn(digits)){
-          div.classList.add("is-invalid");
-        }else{
-          div.classList.remove("is-invalid");
+      const validateWithLuhn = (digits) => {
+        const newDigits = digits.map((value, index) => {
+          if (index % 2 === 0) {
+            let sum = value * 2;
+            if (sum > 9) {
+              return sum - 9;
+            } else {
+              return sum;
+            }
+          } else {
+            return value;
+          }
+        });
+        
+        const newDigitsSum = newDigits.reduce((prev, curr) => {
+          return prev + curr;
+        });
+        
+        if ((newDigitsSum % 10) === 0) {
+          return true;
+        } else {
+          return false;
         }
       };
+      
+      
+      
       const startApp = () => {
         fetchBill();
       };
